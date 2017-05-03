@@ -27,7 +27,6 @@ sudo apt-get install docker-ce
 wget https://bootstrap.pypa.io/get-pip.py
 sudo python3 get-pip.py
 sudo pip install docker-compose
-mkdir sentry
 git clone <this repo>
 ```
 
