@@ -21,7 +21,7 @@ letsencrypt:
         - ./data/letsencrypt-www:/tmp/letsencrypt
     links:
         - nginx
-    env_file: env.letsencrypt
+    env_file: env/letsencrypt
 
 redis:
     image: redis:alpine
@@ -53,7 +53,7 @@ sentry-web:
     ports:
         - "9000:9000"
         - "9001:9001"
-    env_file: env.sentry
+    env_file: env/sentry
     links:
         - postgres
         - redis
@@ -65,7 +65,7 @@ sentry-cron:
     image: sentry:8.16
     hostname: sentry
     command: "sentry run cron"
-    env_file: env.sentry 
+    env_file: env/sentry 
     links:
         - postgres
         - redis
@@ -75,7 +75,7 @@ sentry-worker:
     image: sentry:8.16
     hostname: sentry
     command: "sentry run worker"
-    env_file: env.sentry 
+    env_file: env/sentry 
     links:
         - postgres
         - redis
