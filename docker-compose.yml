@@ -1,82 +1,118 @@
-nginx:
-    image: nginx:alpine
-    hostname: nginx
-    ports:
+version: '2'
+services:
+  nginx:
+      image: nginx:alpine
+      restart: always
+      hostname: nginx
+      ports:
         - "80:80"
         - "443:443"
-    links:
+      links:
         - sentry-web
-    volumes:
+      depends_on:
+        - sentry-web
+        - letsencrypt
+      volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./data/letsencrypt:/etc/letsencrypt
       - ./data/letsencrypt-www:/tmp/letsencrypt
 
-letsencrypt:
-    restart: always
-    image: kvaps/letsencrypt-webroot
-    volumes:
+  letsencrypt:
+      restart: always
+      image: kvaps/letsencrypt-webroot
+      volumes:
         - /etc/localtime:/etc/localtime:ro
         - ./data/letsencrypt:/etc/letsencrypt
         - ./data/letsencrypt-www:/tmp/letsencrypt
-    links:
+      links:
         - nginx
-    env_file: env/letsencrypt
+      env_file: env/letsencrypt
 
-redis:
-    image: redis:alpine
-    hostname: redis
-    ports:
-        - "6379:6379"
-    volumes:
+  redis:
+      restart: always
+      image: redis:alpine
+      hostname: redis
+      expose:
+        - "6379"
+      volumes:
         - "./data/redis:/data"
 
-memcached:
-    image: memcached:alpine
-    hostname: memcached
-    ports:
-        - "11211:11211"
+  memcached:
+      restart: always
+      image: memcached:alpine
+      hostname: memcached
+      expose:
+        - "11211"
 
-postgres:
-    image: postgres:alpine
-    hostname: postgres
-    ports:
-        - "5432:5432"
-    volumes:
+  postgres:
+      restart: always
+      image: postgres:alpine
+      hostname: postgres
+      expose:
+        - "5432"
+      volumes:
         - "./data/postgres/etc:/etc/postgresql"
         - "./data/postgres/log:/var/log/postgresql"
         - "./data/postgres/lib/data:/var/lib/postgresql/data"
 
-sentry-web:
-    image: sentry:8.16
-    hostname: sentry
-    ports:
-        - "9000:9000"
-        - "9001:9001"
-    env_file: env/sentry
-    links:
+  sentry-web:
+      restart: always
+  #    command: sh -c "pip install https://github.com/getsentry/sentry-auth-google/archive/master.zip ; /entrypoint.sh run web"
+      image: sentry:8.16
+      hostname: sentry
+      expose:
+        - "9000"
+        - "9001"
+      env_file: env/sentry
+      depends_on:
+        - redis
+        - postgres
+        - memcached
+        - sentry-cron
+        - sentry-worker
+      links:
         - postgres
         - redis
         - memcached
-    volumes:
+      volumes:
         - ./sentry.conf.py:/etc/sentry/sentry.conf.py:ro
+      environment:
+        SENTRY_REDIS_HOST: redis
+        SENTRY_POSTGRES_HOST: postgres
 
-sentry-cron:
-    image: sentry:8.16
-    hostname: sentry
-    command: "sentry run cron"
-    env_file: env/sentry 
-    links:
+  sentry-cron:
+      restart: always
+      image: sentry:8.16
+      hostname: sentry
+      command: "sentry run cron"
+      env_file: env/sentry 
+      depends_on:
+        - redis
+        - postgres
+        - memcached
+      links:
         - postgres
         - redis
         - memcached
+      environment:
+        SENTRY_REDIS_HOST: redis
+        SENTRY_POSTGRES_HOST: postgres
 
-sentry-worker:
-    image: sentry:8.16
-    hostname: sentry
-    command: "sentry run worker"
-    env_file: env/sentry 
-    links:
+  sentry-worker:
+      restart: always
+      image: sentry:8.16
+      hostname: sentry
+      command: "sentry run worker"
+      env_file: env/sentry 
+      depends_on:
+        - redis
+        - postgres
+        - memcached
+      links:
         - postgres
         - redis
         - memcached
+      environment:
+        SENTRY_REDIS_HOST: redis
+        SENTRY_POSTGRES_HOST: postgres
