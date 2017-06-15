@@ -86,7 +86,7 @@ services:
       image: sentry:8.17
       hostname: sentry
       command: "sentry run cron"
-      env_file: env/sentry 
+      env_file: env/sentry
       depends_on:
         - redis
         - postgres
@@ -104,7 +104,7 @@ services:
       image: sentry:8.17
       hostname: sentry
       command: "sentry run worker"
-      env_file: env/sentry 
+      env_file: env/sentry
       depends_on:
         - redis
         - postgres
