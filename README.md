@@ -52,6 +52,19 @@ docker-compose run --rm sentry-web sentry upgrade
 
 Log in to your new sentry server at https://sentry.example.com
 
+## Upgrading
+
+Just pull down the latest changes from the repo and run the following upgrade
+process. Running the upgrade first will ensure the DB migrations are run from
+the updated sentry image before the web service is restarted with the new
+image.
+
+```shell
+docker-compose stop sentry-web sentry-worker sentry-cron
+docker-compose run --rm sentry-web sentry upgrade
+docker-compose up -d
+```
+
 ## Notes
 
 Please back up your data in the ./data directory, and your secret key off-site.
