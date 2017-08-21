@@ -59,7 +59,7 @@ services:
   sentry-web:
       restart: always
   #    command: sh -c "pip install https://github.com/getsentry/sentry-auth-google/archive/master.zip ; /entrypoint.sh run web"
-      image: sentry:8.17
+      image: sentry:8.19
       hostname: sentry
       expose:
         - "9000"
@@ -83,7 +83,7 @@ services:
 
   sentry-cron:
       restart: always
-      image: sentry:8.17
+      image: sentry:8.19
       hostname: sentry
       command: "sentry run cron"
       env_file: env/sentry
@@ -101,7 +101,7 @@ services:
 
   sentry-worker:
       restart: always
-      image: sentry:8.17
+      image: sentry:8.19
       hostname: sentry
       command: "sentry run worker"
       env_file: env/sentry
