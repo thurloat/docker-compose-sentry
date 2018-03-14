@@ -58,7 +58,7 @@ services:
 
   sentry-web:
       restart: always
-      image: sentry:8.20
+      image: sentry:8.22
       hostname: sentry
       expose:
         - "9000"
@@ -82,7 +82,7 @@ services:
 
   sentry-cron:
       restart: always
-      image: sentry:8.20
+      image: sentry:8.22
       hostname: sentry
       command: "sentry run cron"
       env_file: env/sentry
@@ -100,7 +100,7 @@ services:
 
   sentry-worker:
       restart: always
-      image: sentry:8.20
+      image: sentry:8.22
       hostname: sentry
       command: "sentry run worker"
       env_file: env/sentry
